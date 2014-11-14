@@ -41,6 +41,8 @@ class TestEvents(base.TestingTemplate):
 
     def test_events_route_logged_out(self):
         """Test the `/admin/events` route, logged out."""
+        __import__('ipdb').set_trace()
+
         resp = self.request_with_role('/admin/events', role='none')
         self.assertEqual(resp.status_code, 302)
 
@@ -201,8 +203,6 @@ class TestEvents(base.TestingTemplate):
         """Test that when an event with id `_id` exists in the database and the
         `/admin/events/delete/_id` route is POSTed to, it is deleted.
         """
-        __import__('ipdb').set_trace()
-
         e = self.make_event()
         e.save()
         self.assertEqual(Event.objects(creator=e.creator).count(), 1)

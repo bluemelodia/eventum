@@ -66,7 +66,7 @@ class TestingTemplate(unittest.TestCase):
     # def tearDownClass(self):
     #     """ Drops the test database after the classes' tests are finished"""
 
-    def request_with_role(self, path, method='GET', role='admin',
+    def request_with_role(self, path, method='GET', role=None,
                           *args, **kwargs):
         """ Make an http request with the given role's gplus_id
         in the session and a User with the given role in the database.
