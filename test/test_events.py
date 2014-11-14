@@ -201,22 +201,30 @@ class TestEvents(base.TestingTemplate):
         """Test that when an event with id `_id` exists in the database and the
         `/admin/events/delete/_id` route is POSTed to, it is deleted.
         """
+        __import__('ipdb').set_trace()
+
         e = self.make_event()
         e.save()
         self.assertEqual(Event.objects(creator=e.creator).count(), 1)
         _id = e.id
-        
-        resp = self.request_with_role('/admin/events/delete/%s' % _id,
-                                       method="POST",
-                                       follow_redirects=True)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(Event.objects(creator=e.creator).count(), 0)
+
+        @patch('app.gcal_client')
+        def test_initialization(self, mock_A):
+        #with patch("app.gcal_client") as fake_gclient:
+        # Mock A's do_something method
+            mock_A.delete_event.return_value = None
+            resp = self.request_with_role('/admin/events/delete/%s' % _id,
+                                        method="POST",
+                                        follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(Event.objects(creator=e.creator).count(), 0)
 
 
     def test_delete_event_when_event_does_not_exist(self):
         """Test that when an event with id `_id` exists in the database and the
         `/admin/events/delete/someotherid` route is POSTed to, it is deleted.
         """
+
         e = self.make_event()
         e.save()
         other_id = ObjectId()
@@ -225,83 +233,6 @@ class TestEvents(base.TestingTemplate):
         self.assertIn('Invalid event id', resp.data)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(Event.objects(creator=e.creator).count(), 1)
-
-    def test_publish_as_publisher(self):
-        """Test that when the `/admin/events/publish/<event_id>` routeis POSTed
-        to by a publisher the event with that id is published.
-        """
-        e = self.make_event()
-        e.save()
-        event_id = e.id
-        resp = self.request_with_role('/admin/events/publish/%s' % event_id, role='publisher',
-                               method='POST', follow_redirects=True)
-        self.assertIn('Event published', resp.data)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(Event.objects(published=True).count(), 1)
-
-    def test_publish_event_as_publisher_when_event_does_not_exist(self):
-        """Test that when the `/admin/events/publish/<event_id>` route is POSTed
-        to with no such event_id in the database, no events are published.
-        """
-        e = self.make_event()
-        e.save()
-        other_id = ObjectId()
-        resp = self.request_with_role('/admin/events/publish/%s' % other_id, role='publisher',
-                               method='POST', follow_redirects=True)
-        self.assertIn('Invalid event id', resp.data)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(Event.objects(published=True).count(), 0)
-
-    def test_publish_as_editor(self):
-        """Test that when the `/admin/events/publish/<event_id>` routeis POSTed
-        to by a non-publisher an error is thrown.
-        """
-        e = self.make_event()
-        e.save()
-        event_id = e.id
-        resp = self.request_with_role('/admin/events/publish/%s' % event_id, role='editor',
-                               method='POST')
-        self.assertEqual(resp.status_code, 401)
-        self.assertEqual(Event.objects(published=True).count(), 0)
-
-    def test_unpublish_as_publisher(self):
-        """Test that when the `/admin/events/unpublish/<event_id>` routeis POSTed
-        to by a publisher the event with that id is unpublished.
-        """
-        e = self.make_event()
-        e.published=True
-        e.save()
-        resp = self.request_with_role('/admin/events/unpublish/%s' % e.id, role='publisher',
-                               method='POST', follow_redirects=True)
-        self.assertIn('Event unpublished', resp.data)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(Event.objects(published=False).count(), 1)
-
-    def test_unpublish_event_as_publisher_when_event_does_not_exist(self):
-        """Test that when the `/admin/events/unpublish/<event_id>` route is POSTed
-        to with no such event_id in the database, no events are unpublished.
-        """
-        e = self.make_event()
-        e.published=True
-        e.save()
-        other_id = ObjectId()
-        resp = self.request_with_role('/admin/events/unpublish/%s' % other_id, role='publisher',
-                               method='POST', follow_redirects=True)
-        self.assertIn('Invalid event id', resp.data)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(Event.objects(published=False).count(), 0)
-
-    def test_unpublish_as_editor(self):
-        """Test that when the `/admin/events/unpublish/<event_id>` route is POSTed
-        to by a non-unpublisher an error is thrown.
-        """
-        e = self.make_event()
-        e.published=True
-        e.save()
-        resp = self.request_with_role('/admin/events/unpublish/%s' % e.id, role='editor',
-                               method='POST')
-        self.assertEqual(resp.status_code, 401)
-        self.assertEqual(Event.objects(published=False).count(), 0)
 
 if __name__ == '__main__':
     base.TestingTemplate.main()

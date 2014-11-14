@@ -117,7 +117,7 @@ def create():
     """
     
     form = CreateEventForm(request.form)
-    __import__('ipdb').set_trace()
+    
     if form.validate_on_submit():
         try:
             EventsHelper.create_event(form, g.user)
