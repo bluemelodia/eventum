@@ -4,15 +4,20 @@ from datetime import datetime, timedelta
 from bson.objectid import ObjectId
 
 from app.models import Event, User
+from mock import Mock, patch
 
 class TestEvents(base.TestingTemplate):
 
-    USER = User.objects().first()
     START = datetime.now()
     END = datetime.now() + timedelta(minutes=1)
     TITLE = 'Some Title'
     LOCATION = 'Some Location'
     SLUG = 'my-cool-event'
+
+    @property
+    def USER(self): 
+        return User.objects().first()
+
     def make_event(self):
         return Event(title=self.TITLE,
                      creator=self.USER,
@@ -24,8 +29,9 @@ class TestEvents(base.TestingTemplate):
                      end_time=self.END.time())
 
     def setUp(self):
-        for e in Event.objects():
-            e.delete()
+        Event.drop_collection()
+        # for e in Event.objects():
+        #     e.delete()
         super(TestEvents, self).setUp()
 
     def test_events_route_logged_in(self):
@@ -159,10 +165,12 @@ class TestEvents(base.TestingTemplate):
         }
 
         self.assertEqual(Event.objects(location="45 Some Location").count(), 0)
+        
         resp = self.request_with_role('/admin/events/create',
             method='POST',
             data=query_string_data,
             follow_redirects=True)
+
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(Event.objects(location="45 Some Location").count(), 1)
 
@@ -195,11 +203,12 @@ class TestEvents(base.TestingTemplate):
         """
         e = self.make_event()
         e.save()
-        print str(Event.objects())
         self.assertEqual(Event.objects(creator=e.creator).count(), 1)
         _id = e.id
-        resp = self.request_with_role('/admin/events/delete/%s' % _id, method="POST",
-                               follow_redirects=True)
+        
+        resp = self.request_with_role('/admin/events/delete/%s' % _id,
+                                       method="POST",
+                                       follow_redirects=True)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(Event.objects(creator=e.creator).count(), 0)
 
