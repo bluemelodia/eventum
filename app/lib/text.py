@@ -8,7 +8,7 @@ def main(): #testing
     <p>newlines should make sense. this is another paragraph</p>
     <a href="http://bluemelodia.com">ILikeTurtles</a> 
     """
-    print("Original: " + text)
+    print("Old: " + text)
     format_html(text)
 
 def truncate_html(text, truncate_len, truncate_text):
