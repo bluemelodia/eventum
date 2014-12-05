@@ -95,18 +95,6 @@ def truncate_html(text, truncate_len, truncate_text):
     # Return string
     return out
 
-#We should add a method to text.py that formats HTML as non-html, non-markdown text. 
-#This would be used to create gcal descriptions in google_calendar_resource_builder.py.
-
-#tags should be removed.
-#links like <a title="hgfgfhg" href="http://test.com">link</a> should be link (http://test.com).
-#images should be removed (img tag, so delete the whole thing - return null)
-#newlines should make sense.
-
-#just extract the http://test.com now!
-#can do this with regex (variable in a regex) <a ..... href="   VAR1 ">VAR2</a> extract variable (save), discard the rest
-#format as VAR2 (VAR1)
-
 def format_html(text): 
    #extract and reformat the link
     while 'href="' in text:
