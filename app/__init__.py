@@ -55,7 +55,6 @@ def create_app(**config_overrides):
             exit(1)
 
     register_blueprints()
-    # if(config_overrides[''])
     register_delete_rules()
 
     # Logging
