@@ -115,9 +115,8 @@ def create():
 
     **Methods:** ``GET, POST``
     """
-    
+
     form = CreateEventForm(request.form)
-    
     if form.validate_on_submit():
         try:
             EventsHelper.create_event(form, g.user)

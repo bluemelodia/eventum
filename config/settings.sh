@@ -4,7 +4,7 @@
 export HOST=localhost
 export PORT=5000
 export DEBUG=TRUE
-export SECRET_KEY=hellowworld
+export SECRET_KEY=
 
 # google related credentials
 export INSTALLED_APP_CLIENT_SECRET_PATH=client_secrets.json

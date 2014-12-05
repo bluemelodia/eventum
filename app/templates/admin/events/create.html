@@ -37,7 +37,7 @@
 
 {% block barright %}
 <a class="text-button save-button" href="#save">Save Draft</a>
-{% if current_user and current_user.can("publish") %}
+{% if current_user.can("publish") %}
     {% if event and event.published %}
         {{ macros.toggle("Publish", "Unpublish")}}
     {% else %}
